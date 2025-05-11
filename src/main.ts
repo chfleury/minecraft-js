@@ -1,4 +1,10 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { World } from "./World/World";
+import Stats from "three/examples/jsm/libs/stats.module.js";
+
+const stats = new Stats();
+document.body.append(stats.dom);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -7,22 +13,51 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
+camera.position.set(-32, 16, -32);
 
 const renderer = new THREE.WebGLRenderer();
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(16, 0, 16);
+
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setAnimationLoop(animate);
+// set sky color
+renderer.setClearColor(0x87ceeb, 1); // TODO
+
+// generate world
+const world = new World(32);
+world.generate();
+scene.add(world);
+
 document.body.appendChild(renderer.domElement);
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
-camera.position.z = 5;
-
 function animate() {
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-
+  requestAnimationFrame(animate);
+  // controls.update();
+  stats.update();
   renderer.render(scene, camera);
 }
+
+animate();
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// TODO
+function setupLights() {
+  const ambientLight = new THREE.AmbientLight(); // TODO
+  ambientLight.intensity = 0.1;
+  scene.add(ambientLight);
+
+  const directionalLight = new THREE.DirectionalLight(); // TODO
+  directionalLight.position.set(1, 1, 1).normalize();
+  scene.add(directionalLight);
+
+  const directionalLight2 = new THREE.DirectionalLight(); // TODO
+  directionalLight2.position.set(-1, 1, -0.5).normalize();
+  scene.add(directionalLight2);
+}
+
+setupLights();
