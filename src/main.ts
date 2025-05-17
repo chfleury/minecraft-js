@@ -1,11 +1,12 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { World } from "./World/World";
+import { World } from "./modules/World";
 import Stats from "three/examples/jsm/libs/stats.module.js";
+import { displayDeveloperGUI } from "./modules/displayDeveloperGUI";
 
 const stats = new Stats();
 document.body.append(stats.dom);
-
+const isDevEnv = true;
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -24,8 +25,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x87ceeb, 1); // TODO
 
 // generate world
-const world = new World(32);
-world.generate();
+const world = World.getInstance();
+world.generate({ size: 32, depth: 16 });
 scene.add(world);
 
 document.body.appendChild(renderer.domElement);
@@ -38,6 +39,10 @@ function animate() {
 }
 
 animate();
+
+if (isDevEnv) {
+  displayDeveloperGUI(world);
+}
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
