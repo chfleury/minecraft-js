@@ -3,9 +3,10 @@ import * as THREE from "three";
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
 
-export type WorldDimensions = { width: number; length: number; depth: number };
+export type WorldDimensions = { size: number; depth: number };
 
 export class World extends THREE.Group {
+  private dimensions: WorldDimensions | null = null;
   private static instance: World;
   private constructor() {
     super();
@@ -19,8 +20,18 @@ export class World extends THREE.Group {
     return World.instance;
   }
 
-  public generate(dimensions: { size: number; depth: number }) {
+  public get getDimensions() {
+    if (!this.dimensions) {
+      throw new Error("Expected world to have been generated.");
+    }
+
+    return this.dimensions;
+  }
+
+  public generate(dimensions: WorldDimensions) {
     this.clear();
+
+    this.dimensions = dimensions;
 
     const maxMeshCount = dimensions.size * dimensions.size * dimensions.depth;
 
